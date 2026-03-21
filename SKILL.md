@@ -7,10 +7,13 @@ description: Use scalpel when you need structural-aware multi-language symbol di
 
 Use this CLI when tasks require editing by symbol identity instead of fragile line numbers.
 
+Current command parity includes `view --outline`, `view --lines`, and JSON outputs for `find`, `peek`, `view`, `diff`, and `patch`.
+
 ## Best-fit scenarios
 
 - Rename identifiers within a matched function or block.
 - Locate functions, classes, types, headings, and YAML keys.
+- Peek files by page or line position before editing.
 - Produce machine-readable JSON symbol output.
 - Preview modifications before any write.
 
@@ -39,8 +42,11 @@ Use this CLI when tasks require editing by symbol identity instead of fragile li
 scalpel find 'fn:*' ./src --recursive
 scalpel view 'fn:main' src/main.rs --context 3
 scalpel diff 'fn:CalculateTotal' app.go --rename sum=total
+scalpel peek src/main.rs --from-line 1 --page-size 40 --page 1
+scalpel peek src/main.rs --from-pos 80 --to-pos 140 --all
 scalpel patch 'fn:CalculateTotal' app.go --rename sum=total --apply
 scalpel patch 'method:computeInvoice' tests/fixtures/sample-complex.ts --body-file /tmp/compute-invoice-method.tsfrag --apply
 scalpel patch 'class:InvoiceRepository' tests/fixtures/sample-complex.ts --body-file /tmp/replacement-class.tsfrag --apply
 scalpel patch 'method:chooseTier' tests/fixtures/sample-complex.ts --replace 'if (amount > 1000) { return "enterprise"; }=>if (amount > 1000) { return "platinum"; }' --apply
+scalpel completion bash > /tmp/scalpel.bash
 ```

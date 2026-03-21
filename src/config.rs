@@ -28,6 +28,8 @@ pub struct RegexPattern {
     pub capture_group: usize,
     #[serde(default)]
     pub block_scoped: bool,
+    #[serde(default)]
+    pub parent_capture_group: Option<usize>,
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -35,6 +37,8 @@ pub struct LanguageConfig {
     pub id: String,
     pub extensions: Vec<String>,
     pub strategy: ParseStrategy,
+    #[serde(default = "default_tier")]
+    pub tier: u8,
     #[serde(default)]
     pub patterns: Vec<RegexPattern>,
 }
@@ -105,4 +109,8 @@ fn default_concurrency() -> usize {
 
 fn default_max_file_bytes() -> u64 {
     DEFAULT_MAX_FILE_BYTES
+}
+
+fn default_tier() -> u8 {
+    1
 }

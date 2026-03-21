@@ -4,6 +4,7 @@ languages:
   - id: javascript
     extensions: [js, cjs, mjs, jsx]
     strategy: regex
+    tier: 1
     patterns:
       - kind: function
         regex: '(?m)^\s*(?:export\s+)?function\s+([A-Za-z_][A-Za-z0-9_]*)\s*\('
@@ -22,6 +23,7 @@ languages:
   - id: typescript
     extensions: [ts, tsx]
     strategy: regex
+    tier: 1
     patterns:
       - kind: function
         regex: '(?m)^\s*(?:export\s+)?function\s+([A-Za-z_][A-Za-z0-9_]*)\s*\('
@@ -41,24 +43,31 @@ languages:
   - id: go
     extensions: [go]
     strategy: regex
+    tier: 1
     patterns:
       - kind: function
         regex: '(?m)^\s*func\s+([A-Za-z_][A-Za-z0-9_]*)\s*\('
         capture_group: 1
         block_scoped: true
       - kind: method
-        regex: '(?m)^\s*func\s*\([^)]*\)\s*([A-Za-z_][A-Za-z0-9_]*)\s*\('
-        capture_group: 1
+        regex: '(?m)^\s*func\s*\(\s*\w+\s+\*?([A-Za-z_][A-Za-z0-9_]*)\s*\)\s*([A-Za-z_][A-Za-z0-9_]*)\s*\('
+        capture_group: 2
+        parent_capture_group: 1
         block_scoped: true
       - kind: type
         regex: '(?m)^\s*type\s+([A-Za-z_][A-Za-z0-9_]*)\s+'
         capture_group: 1
+      - kind: import
+        regex: '(?m)^\s*(import)\s*\(\s*$'
+        capture_group: 1
+        block_scoped: true
       - kind: import
         regex: '(?m)^\s*import\s+"([^"]+)"'
         capture_group: 1
   - id: rust
     extensions: [rs]
     strategy: regex
+    tier: 1
     patterns:
       - kind: function
         regex: '(?m)^\s*(?:pub\s+)?fn\s+([A-Za-z_][A-Za-z0-9_]*)\s*\('
@@ -76,6 +85,7 @@ languages:
   - id: lua
     extensions: [lua]
     strategy: regex
+    tier: 1
     patterns:
       - kind: function
         regex: '(?m)^\s*(?:local\s+)?function\s+([A-Za-z_][A-Za-z0-9_\.:]*)\s*\('
@@ -87,9 +97,11 @@ languages:
   - id: markdown
     extensions: [md, markdown]
     strategy: markdown
+    tier: 1
   - id: text
     extensions: [txt]
     strategy: regex
+    tier: 1
     patterns:
       - kind: key
         regex: '(?m)^\s*([A-Za-z_][A-Za-z0-9_\-]*)\s*:\s*.*$'
@@ -97,12 +109,16 @@ languages:
   - id: yaml
     extensions: [yaml, yml]
     strategy: yaml
+    tier: 1
   - id: json
     extensions: [json]
     strategy: json
+    tier: 1
   - id: jsonl
     extensions: [jsonl]
     strategy: jsonl
+    tier: 1
   - id: toml
     extensions: [toml]
     strategy: toml
+    tier: 1

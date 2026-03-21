@@ -35,12 +35,17 @@ fn capture_pattern(
         };
 
         let name = capture_name(&caps, pattern.capture_group);
+        let parent = capture_parent(&caps, pattern.parent_capture_group);
         let start_byte = m.start();
         let mut end_byte = line_end_byte(content, start_byte);
 
         if pattern.block_scoped {
             if let Some(block_end) = find_block_end(content, start_byte) {
                 end_byte = block_end;
+            } else if is_import_group(m.as_str()) {
+                if let Some(group_end) = find_group_end(content, start_byte) {
+                    end_byte = group_end;
+                }
             }
         }
 
@@ -53,6 +58,7 @@ fn capture_pattern(
             start_byte,
             end_byte,
             signature: m.as_str().trim().to_string(),
+            parent,
         });
     }
 }
@@ -62,6 +68,15 @@ fn capture_name(caps: &regex::Captures<'_>, group: usize) -> String {
         return "<symbol>".to_string();
     };
     name_match.as_str().to_string()
+}
+
+fn capture_parent(caps: &regex::Captures<'_>, group: Option<usize>) -> Option<String> {
+    let idx = group?;
+    let value = caps.get(idx)?.as_str().trim();
+    if value.is_empty() {
+        return None;
+    }
+    Some(value.to_string())
 }
 
 fn compute_line_starts(content: &str) -> Vec<usize> {
@@ -115,6 +130,54 @@ fn find_block_end(content: &str, start: usize) -> Option<usize> {
         }
 
         if ch != '}' {
+            continue;
+        }
+
+        if depth == 0 {
+            continue;
+        }
+
+        depth -= 1;
+        if depth == 0 {
+            return Some(start + open_rel + offset + 1);
+        }
+    }
+
+    None
+}
+
+fn is_import_group(signature: &str) -> bool {
+    let trimmed = signature.trim_start();
+    trimmed.starts_with("import") && trimmed.contains('(')
+}
+
+fn find_group_end(content: &str, start: usize) -> Option<usize> {
+    let open_rel = content.get(start..)?.find('(')?;
+    let mut depth = 0usize;
+    let mut in_str = false;
+    let mut prev_escape = false;
+
+    for (offset, ch) in content[start + open_rel..].char_indices() {
+        if in_str {
+            if ch == '"' && !prev_escape {
+                in_str = false;
+            }
+            prev_escape = ch == '\\' && !prev_escape;
+            continue;
+        }
+
+        if ch == '"' {
+            in_str = true;
+            prev_escape = false;
+            continue;
+        }
+
+        if ch == '(' {
+            depth += 1;
+            continue;
+        }
+
+        if ch != ')' {
             continue;
         }
 

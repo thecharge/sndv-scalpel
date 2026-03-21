@@ -1,5 +1,6 @@
 use std::path::Path;
 
+use serde::Serialize;
 use similar::TextDiff;
 
 use crate::config::AppConfig;
@@ -32,15 +33,44 @@ pub async fn run(
         request.body,
         request.body_file,
     )?;
+    let diff = render_diff(request.path, &parsed.content, &changed);
+    let changed_any = parsed.content != changed;
 
-    print_diff(request.path, &parsed.content, &changed);
+    if !request.json {
+        print!("{diff}");
+    }
     if !request.apply {
-        println!("{}", dry_run_message());
+        if request.json {
+            let output = PatchOutput {
+                path: request.path.display().to_string(),
+                applied: false,
+                dry_run: true,
+                changed: changed_any,
+                diff,
+            };
+            println!("{}", serde_json::to_string_pretty(&output)?);
+        } else {
+            println!("{}", dry_run_message());
+        }
         return Ok(());
     }
 
-    apply_transactional_patch(request.path, &changed).await?;
-    println!("{} {}", applied_message(), request.path.display());
+    if changed_any {
+        apply_transactional_patch(request.path, &changed).await?;
+    }
+
+    if request.json {
+        let output = PatchOutput {
+            path: request.path.display().to_string(),
+            applied: true,
+            dry_run: false,
+            changed: changed_any,
+            diff,
+        };
+        println!("{}", serde_json::to_string_pretty(&output)?);
+    } else {
+        println!("{} {}", applied_message(), request.path.display());
+    }
     Ok(())
 }
 
@@ -53,6 +83,16 @@ pub struct PatchRequest<'a> {
     pub body_file: Option<&'a Path>,
     pub apply: bool,
     pub index: Option<usize>,
+    pub json: bool,
+}
+
+#[derive(Debug, Serialize)]
+struct PatchOutput {
+    path: String,
+    applied: bool,
+    dry_run: bool,
+    changed: bool,
+    diff: String,
 }
 
 fn build_changed_content(
@@ -91,12 +131,11 @@ fn build_changed_content(
     replace_symbol_block(content, selected, &block)
 }
 
-fn print_diff(path: &Path, original: &str, changed: &str) {
-    let diff = TextDiff::from_lines(original, changed)
+fn render_diff(path: &Path, original: &str, changed: &str) -> String {
+    TextDiff::from_lines(original, changed)
         .unified_diff()
         .header(&format!("a/{}", path.display()), &format!("b/{}", path.display()))
-        .to_string();
-    println!("{diff}");
+        .to_string()
 }
 
 async fn apply_transactional_patch(path: &Path, changed: &str) -> anyhow::Result<()> {

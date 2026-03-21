@@ -2,6 +2,8 @@
 
 Production-ready structural-aware CLI for safe code discovery and scoped edits.
 
+Creator lineage: Radoslav Sandov (Go prototype). Current Rust CLI version: `0.1.0`.
+
 This repository migrates the prototype CLI from Go to Rust and hardens it for real usage with:
 
 - async concurrent file processing
@@ -23,6 +25,7 @@ This repository migrates the prototype CLI from Go to Rust and hardens it for re
 ```bash
 cargo build --release
 ./target/release/scalpel --help
+./target/release/scalpel --version
 ```
 
 ## OS Alias Setup
@@ -104,6 +107,10 @@ scalpel find 'fn:*' tests/fixtures --recursive
 # inspect matched block
 scalpel view 'fn:calculate_total' tests/fixtures/sample.rs --context 2
 
+# paginated file peek from a position
+scalpel peek tests/fixtures/sample.go --from-line 1 --page-size 5 --page 1
+scalpel peek tests/fixtures/sample.go --from-pos 7 --to-pos 12 --all
+
 # discover Lua functions from configured language registry
 scalpel find 'fn:*' tests/fixtures/sample.lua
 
@@ -136,9 +143,20 @@ scalpel patch 'key:mode' tests/fixtures/sample.yaml --replace 'safe=>strict' --a
 scalpel patch 'key:service.mode' tests/fixtures/sample.toml --replace 'safe=>strict' --apply
 scalpel patch 'key:line1.state' tests/fixtures/sample.jsonl --replace 'queued=>running' --apply
 
+# swap Go grouped imports as one block
+scalpel patch 'import:import' tests/fixtures/sample-import-groups.go --body-file /tmp/imports.go.frag --apply
+
+# update one import line in JS/TS/Rust by index when multiple imports exist
+scalpel find 'import:*' app.ts
+scalpel patch 'import:*' app.ts --index 2 --replace 'from "lib-a"=>from "lib-b"' --apply
+
 # complex TypeScript operations on class/method blocks
 scalpel patch 'method:computeInvoice' tests/fixtures/sample-complex.ts --body-file /tmp/compute-invoice-method.tsfrag --apply
 scalpel patch 'class:InvoiceRepository' tests/fixtures/sample-complex.ts --body-file /tmp/replacement-class.tsfrag --apply
+
+# generate bash completion
+scalpel completion bash > /tmp/scalpel.bash
+source /tmp/scalpel.bash
 ```
 
 ## Safety Model
@@ -223,7 +241,7 @@ Hook checks:
 - Development guidelines: docs/development-guidelines.md
 - Features and issue flow: docs/features-and-issues.md
 - Design choices FAQ: docs/design-decisions.md
-- LLM usage: docs/llm-usage.md
+- LLM usage (tools/framework/workflow/CI examples): docs/llm-usage.md
 - Release artifacts: docs/release-artifacts.md
 - LLM skill file: SKILL.md
 

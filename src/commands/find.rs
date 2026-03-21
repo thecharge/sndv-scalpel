@@ -5,11 +5,11 @@ use futures::{stream, StreamExt};
 use crate::config::AppConfig;
 use crate::constants::NO_MATCHES_MESSAGE;
 use crate::lang::LanguageRegistry;
-use crate::model::MatchOutput;
+use crate::model::{Confidence, MatchOutput};
 use crate::parser::parse_path;
 use crate::query::Query;
 
-use super::util::{collect_files, kind_label};
+use super::util::{collect_files, kind_label, mode_label};
 
 pub async fn run(
     cfg: &AppConfig,
@@ -45,6 +45,9 @@ pub async fn run(
                 out.push(MatchOutput {
                     pattern: query.raw.clone(),
                     language: parsed_file.language_id.clone(),
+                    mode: parsed_file.mode,
+                    tier: parsed_file.tier,
+                    confidence: Confidence::High,
                     symbol,
                 });
             }
@@ -56,11 +59,13 @@ pub async fn run(
     } else {
         for item in &out {
             println!(
-                "{}:{}-{} [{}] {} {}",
+                "{}:{}-{} [{}:{}:{}] {} {}",
                 item.symbol.file.display(),
                 item.symbol.start_line,
                 item.symbol.end_line,
                 item.language,
+                item.tier,
+                mode_label(item.mode),
                 kind_label(item.symbol.kind),
                 item.symbol.name
             );

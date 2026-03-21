@@ -38,12 +38,18 @@ pub enum Command {
     },
     #[command(about = "Show a matched block with context")]
     View {
-        pattern: String,
-        path: PathBuf,
+        pattern_or_path: String,
+        path: Option<PathBuf>,
         #[arg(long, default_value_t = 3)]
         context: usize,
         #[arg(long)]
         index: Option<usize>,
+        #[arg(long, help = "Render a structural outline for the file")]
+        outline: bool,
+        #[arg(long, help = "Show explicit line range in form start:end")]
+        lines: Option<String>,
+        #[arg(long, help = "Disable line-range safety cap")]
+        all: bool,
     },
     #[command(
         about = "Peek file content with pagination or explicit ranges",

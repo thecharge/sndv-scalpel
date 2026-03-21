@@ -55,8 +55,8 @@ pub fn run(
         (start, Some(end))
     };
 
-    let file = File::open(path)
-        .map_err(|e| anyhow::anyhow!("opening {}: {}", path.display(), e))?;
+    let file =
+        File::open(path).map_err(|e| anyhow::anyhow!("opening {}: {}", path.display(), e))?;
     let reader = BufReader::new(file);
 
     let mut lines = Vec::new();
@@ -65,8 +65,7 @@ pub fn run(
     for (index, line_result) in reader.lines().enumerate() {
         let line_no = index + 1;
         total_lines = line_no;
-        let line = line_result
-            .map_err(|e| anyhow::anyhow!("reading {}: {}", path.display(), e))?;
+        let line = line_result.map_err(|e| anyhow::anyhow!("reading {}: {}", path.display(), e))?;
 
         if line_no < start_line {
             continue;
@@ -103,13 +102,7 @@ pub fn run(
         return Ok(());
     }
 
-    println!(
-        "--- {}:{}-{} (total: {}) ---",
-        path.display(),
-        start_line,
-        end_line,
-        total_lines
-    );
+    println!("--- {}:{}-{} (total: {}) ---", path.display(), start_line, end_line, total_lines);
 
     for entry in &lines {
         println!("{:>5} | {}", entry.line, entry.text);

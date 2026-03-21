@@ -2,7 +2,7 @@ use std::path::Path;
 
 use crate::config::{AppConfig, LanguageConfig, ParseStrategy};
 use crate::lang::LanguageRegistry;
-use crate::model::Symbol;
+use crate::model::{EngineMode, Symbol};
 
 mod data_parser;
 mod regex_parser;
@@ -10,6 +10,8 @@ mod stream_io;
 
 pub struct ParsedFile {
     pub language_id: String,
+    pub mode: EngineMode,
+    pub tier: u8,
     pub content: String,
     pub symbols: Vec<Symbol>,
 }
@@ -25,8 +27,15 @@ pub async fn parse_path(
 
     let content = stream_io::read_file_streamed(path, cfg.max_file_bytes).await?;
     let symbols = parse_symbols(&language, path.to_path_buf(), &content)?;
+    let mode = strategy_mode(&language.strategy, &language.id);
 
-    Ok(ParsedFile { language_id: language.id, content, symbols })
+    Ok(ParsedFile {
+        language_id: language.id,
+        mode,
+        tier: language.tier,
+        content,
+        symbols,
+    })
 }
 
 pub fn parse_symbols(
@@ -41,6 +50,21 @@ pub fn parse_symbols(
         ParseStrategy::Json => data_parser::parse_json(file, content),
         ParseStrategy::Jsonl => data_parser::parse_jsonl(file, content),
         ParseStrategy::Toml => data_parser::parse_toml(file, content),
+    }
+}
+
+fn strategy_mode(strategy: &ParseStrategy, language_id: &str) -> EngineMode {
+    if language_id == "text" {
+        return EngineMode::Text;
+    }
+
+    match strategy {
+        ParseStrategy::Regex
+        | ParseStrategy::Markdown
+        | ParseStrategy::Yaml
+        | ParseStrategy::Json
+        | ParseStrategy::Jsonl
+        | ParseStrategy::Toml => EngineMode::Structural,
     }
 }
 

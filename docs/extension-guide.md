@@ -23,3 +23,4 @@
 3. Wire dispatch in `src/commands/mod.rs`.
 3. Add integration test path and expected output.
 4. Update README usage examples.
+5. Update `docs/quickstart.md` and `docs/integration-e2e.md` with command parity examples.

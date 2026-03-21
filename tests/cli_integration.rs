@@ -265,3 +265,82 @@ fn typescript_if_statement_body_replacement_inside_method() {
     let updated = std::fs::read_to_string(source).expect("read updated method");
     assert!(updated.contains("return \"platinum\""));
 }
+
+#[test]
+fn go_import_group_block_swap_from_file() {
+    let temp = tempfile::tempdir().expect("tempdir");
+    let source = temp.path().join("sample-import-groups.go");
+    let imports = temp.path().join("imports.go.frag");
+    std::fs::copy("tests/fixtures/sample-import-groups.go", &source).expect("copy fixture");
+    std::fs::write(&imports, "import (\n    \"strings\"\n    \"fmt\"\n)\n").expect("write imports");
+
+    let mut cmd = Command::cargo_bin("scalpel").expect("binary");
+    cmd.args([
+        "patch",
+        "import:import",
+        source.to_string_lossy().as_ref(),
+        "--body-file",
+        imports.to_string_lossy().as_ref(),
+        "--apply",
+    ]);
+    cmd.assert().success().stdout(contains("applied:"));
+
+    let updated = std::fs::read_to_string(source).expect("read updated imports");
+    let strings_pos = updated.find("\"strings\"").expect("strings import");
+    let fmt_pos = updated.find("\"fmt\"").expect("fmt import");
+    assert!(strings_pos < fmt_pos);
+}
+
+#[test]
+fn view_outline_shows_parent_child_symbols() {
+    let mut cmd = Command::cargo_bin("scalpel").expect("binary");
+    cmd.args(["view", "tests/fixtures/sample.go", "--outline"]);
+    cmd.assert().success().stdout(contains("type Config")).stdout(contains("method Run"));
+}
+
+#[test]
+fn view_lines_supports_explicit_ranges() {
+    let mut cmd = Command::cargo_bin("scalpel").expect("binary");
+    cmd.args(["view", "tests/fixtures/sample.rs", "--lines", "1:3"]);
+    cmd.assert().success().stdout(contains("1 |")).stdout(contains("3 |"));
+}
+
+#[test]
+fn view_json_outputs_structured_payload() {
+    let mut cmd = Command::cargo_bin("scalpel").expect("binary");
+    cmd.args(["--json", "view", "fn:calculate_total", "tests/fixtures/sample.rs"]);
+    cmd.assert().success().stdout(contains("\"symbol\"")).stdout(contains("\"mode\""));
+}
+
+#[test]
+fn diff_json_outputs_structured_payload() {
+    let mut cmd = Command::cargo_bin("scalpel").expect("binary");
+    cmd.args([
+        "--json",
+        "diff",
+        "fn:CalculateTotal",
+        "tests/fixtures/sample.go",
+        "--rename",
+        "sum=total",
+    ]);
+    cmd.assert().success().stdout(contains("\"dry_run\": true")).stdout(contains("\"diff\""));
+}
+
+#[test]
+fn patch_json_outputs_structured_payload() {
+    let temp = tempfile::tempdir().expect("tempdir");
+    let path = temp.path().join("sample.rs");
+    std::fs::copy("tests/fixtures/sample.rs", &path).expect("copy fixture");
+
+    let mut cmd = Command::cargo_bin("scalpel").expect("binary");
+    cmd.args([
+        "--json",
+        "patch",
+        "fn:calculate_total",
+        path.to_string_lossy().as_ref(),
+        "--rename",
+        "sum=total",
+        "--apply",
+    ]);
+    cmd.assert().success().stdout(contains("\"applied\": true")).stdout(contains("\"changed\""));
+}

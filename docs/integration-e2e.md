@@ -130,6 +130,47 @@ Expected:
 - Lua functions are discovered.
 - Markdown headings and YAML/JSON keys are discovered.
 
+## E2E scenario: paginated peek and position ranges
+
+```bash
+scalpel peek tests/fixtures/sample.go --page-size 5 --page 1
+scalpel peek tests/fixtures/sample.go --from-pos 7 --to-pos 12 --all
+```
+
+## E2E scenario: view outline and line windows
+
+```bash
+scalpel view tests/fixtures/sample.go --outline
+scalpel view tests/fixtures/sample.rs --lines 1:25
+scalpel view tests/fixtures/sample.rs --lines 1:400 --all
+```
+
+## E2E scenario: structured JSON outputs across commands
+
+```bash
+scalpel --json find 'fn:*' tests/fixtures --recursive
+scalpel --json view 'fn:calculate_total' tests/fixtures/sample.rs
+scalpel --json diff 'fn:CalculateTotal' tests/fixtures/sample.go --rename sum=total
+scalpel --json patch 'fn:CalculateTotal' tests/fixtures/sample.go --rename sum=total --apply
+```
+
+Expected:
+
+- paginated output returns stable line windows
+- position aliases (`--from-pos`, `--to-pos`) return explicit ranges
+
+## E2E scenario: bash completion generation
+
+```bash
+scalpel completion bash > /tmp/scalpel.bash
+head -n 5 /tmp/scalpel.bash
+```
+
+Expected:
+
+- completion script is emitted to stdout
+- script contains `scalpel` command completion definitions
+
 ## E2E scenario: JSONL patch side flow
 
 ```bash

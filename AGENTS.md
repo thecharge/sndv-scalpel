@@ -16,6 +16,9 @@ Build and maintain a safe, production-ready CLI for structural find/diff/patch w
 - Keep source files under 300 lines.
 - Keep tests for happy, side, and critical paths.
 - Update docs when behavior changes.
+- For new CLI commands, add integration tests and update completion/docs examples.
+- Keep `peek` behavior stable: paginated reading plus explicit position ranges.
+- Keep command behavior and docs aligned for full parity: `view --outline/--lines`, JSON outputs, and transaction safety.
 
 ## Required checks before finishing
 

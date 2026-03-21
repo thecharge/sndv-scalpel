@@ -12,16 +12,14 @@ Lua is still supported as a target language for symbol discovery, and it can be 
 
 If you want scriptable behavior later, we can add optional Lua runtime plugins on top of this stable config layer.
 
-## Why not port every advanced feature in one shot
+## Why parity and safety shipped together
 
-A full one-shot port increases risk. The current path shipped:
+Parity behavior is implemented with the same safety invariants:
 
-1. Safe core behavior first (diff, patch, rollback)
-2. Dynamic language setup
-3. Heavy and chaos tests
-4. Packaging and automation
-
-This keeps the tool usable while reducing regression risk.
+1. Structural selection first (`find`, `view --outline`, `view --lines`)
+2. Preview-first modifications (`diff`)
+3. Transaction-protected writes (`patch --apply`)
+4. Structured automation via JSON outputs for all operational commands
 
 ## How diff works
 

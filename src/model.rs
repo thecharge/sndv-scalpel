@@ -14,6 +14,21 @@ pub enum SymbolKind {
     Unknown,
 }
 
+#[derive(Debug, Clone, Copy, Deserialize, Serialize, PartialEq, Eq)]
+#[serde(rename_all = "kebab-case")]
+pub enum EngineMode {
+    Structural,
+    Text,
+}
+
+#[derive(Debug, Clone, Copy, Deserialize, Serialize, PartialEq, Eq)]
+#[serde(rename_all = "kebab-case")]
+pub enum Confidence {
+    High,
+    Medium,
+    Low,
+}
+
 #[derive(Debug, Clone, Serialize)]
 pub struct Symbol {
     pub file: PathBuf,
@@ -24,11 +39,16 @@ pub struct Symbol {
     pub start_byte: usize,
     pub end_byte: usize,
     pub signature: String,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub parent: Option<String>,
 }
 
 #[derive(Debug, Clone, Serialize)]
 pub struct MatchOutput {
     pub pattern: String,
     pub language: String,
+    pub mode: EngineMode,
+    pub tier: u8,
+    pub confidence: Confidence,
     pub symbol: Symbol,
 }

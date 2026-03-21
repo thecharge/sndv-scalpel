@@ -6,7 +6,7 @@ use crate::config::AppConfig;
 use crate::constants::{APPLIED_MESSAGE, DRY_RUN_MESSAGE};
 use crate::error::ScalpelError;
 use crate::lang::LanguageRegistry;
-use crate::model::{Symbol, SymbolKind};
+use crate::model::{EngineMode, Symbol, SymbolKind};
 
 pub fn collect_files(
     paths: &[PathBuf],
@@ -160,6 +160,13 @@ pub fn kind_label(kind: SymbolKind) -> &'static str {
     }
 }
 
+pub fn mode_label(mode: EngineMode) -> &'static str {
+    match mode {
+        EngineMode::Structural => "structural",
+        EngineMode::Text => "text",
+    }
+}
+
 pub fn dry_run_message() -> &'static str {
     DRY_RUN_MESSAGE
 }
@@ -187,6 +194,7 @@ mod tests {
             start_byte: 13,
             end_byte: 25,
             signature: "line2 queued".to_string(),
+            parent: None,
         };
 
         let updated = scoped_rename(content, &symbol, "queued", "running").expect("rename");
@@ -209,6 +217,7 @@ mod tests {
             start_byte: 0,
             end_byte: 0,
             signature: "line1".to_string(),
+            parent: None,
         };
 
         let updated = scoped_rename(content, &symbol, "queued", "running").expect("rename");
@@ -228,6 +237,7 @@ mod tests {
             start_byte: 0,
             end_byte: 3,
             signature: "a+b".to_string(),
+            parent: None,
         };
 
         let updated = scoped_rename(content, &symbol, "a+b", "c").expect("rename");
@@ -246,6 +256,7 @@ mod tests {
             start_byte: 2,
             end_byte: 21,
             signature: "line".to_string(),
+            parent: None,
         };
 
         let updated = scoped_replace_literal(content, &symbol, "true", "1").expect("replace");
@@ -266,6 +277,7 @@ mod tests {
             start_byte: 0,
             end_byte: 11,
             signature: "func A() {}".to_string(),
+            parent: None,
         };
 
         let updated =

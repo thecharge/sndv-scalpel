@@ -2,9 +2,11 @@ use crate::cli::Command;
 use crate::config::AppConfig;
 use crate::lang::LanguageRegistry;
 
+mod completion;
 mod find;
 mod info;
 mod patch;
+mod peek;
 mod util;
 mod view;
 
@@ -21,8 +23,23 @@ pub async fn dispatch(
         Command::Find { pattern, paths, recursive } => {
             find::run(cfg, registry, pattern, paths, *recursive, concurrency, json).await
         }
-        Command::View { pattern, path, context, index } => {
-            view::run(cfg, registry, pattern, path.as_path(), *context, *index).await
+        Command::View { pattern_or_path, path, context, index, outline, lines, all } => {
+            view::run(
+                cfg,
+                registry,
+                pattern_or_path,
+                path.as_deref(),
+                *context,
+                *index,
+                *outline,
+                lines.as_deref(),
+                *all,
+                json,
+            )
+            .await
+        }
+        Command::Peek { path, from_line, to_line, page_size, page, all } => {
+            peek::run(path.as_path(), *from_line, *to_line, *page_size, *page, *all, json)
         }
         Command::Info { path } => info::run(cfg, registry, path.as_path(), json).await,
         Command::Diff { pattern, path, rename, replace, body, body_file, index } => {
@@ -38,6 +55,7 @@ pub async fn dispatch(
                     body_file: body_file.as_deref(),
                     apply: false,
                     index: *index,
+                    json,
                 },
             )
             .await
@@ -55,9 +73,14 @@ pub async fn dispatch(
                     body_file: body_file.as_deref(),
                     apply: *apply,
                     index: *index,
+                    json,
                 },
             )
             .await
+        }
+        Command::Completion { shell } => {
+            completion::run(*shell);
+            Ok(())
         }
     }
 }

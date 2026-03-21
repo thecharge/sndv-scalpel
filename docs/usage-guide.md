@@ -128,3 +128,46 @@ scalpel patch 'key:mode' tests/fixtures/sample.yaml --replace 'safe=>strict' --a
 scalpel patch 'key:service.mode' tests/fixtures/sample.toml --replace 'safe=>strict' --apply
 scalpel patch 'key:line1.state' tests/fixtures/sample.jsonl --replace 'queued=>running' --apply
 ```
+
+## 11. Peek command for paginated file reading
+
+```bash
+scalpel peek tests/fixtures/sample.go --page-size 5 --page 1
+scalpel peek tests/fixtures/sample.go --from-line 7 --to-line 12 --all
+scalpel --json peek tests/fixtures/sample.go --from-pos 7 --to-pos 12 --all
+```
+
+## 12. Bash completion
+
+```bash
+scalpel completion bash > /tmp/scalpel.bash
+source /tmp/scalpel.bash
+```
+
+## 13. Import group and import-line swaps
+
+Go grouped imports as one structural block:
+
+```bash
+cat > /tmp/imports.go.frag << 'EOF'
+import (
+    "strings"
+    "fmt"
+)
+EOF
+
+scalpel patch 'import:import' tests/fixtures/sample-import-groups.go --body-file /tmp/imports.go.frag --apply
+```
+
+Rust/TS/JS import-line swaps with explicit index:
+
+```bash
+scalpel find 'import:*' src/main.rs
+scalpel patch 'import:*' src/main.rs --index 1 --replace 'std::io=>std::fs' --apply
+
+scalpel find 'import:*' app.ts
+scalpel patch 'import:*' app.ts --index 2 --replace 'from "lib-a"=>from "lib-b"' --apply
+
+scalpel find 'import:*' app.js
+scalpel patch 'import:*' app.js --index 1 --replace 'from "node:fs"=>from "node:fs/promises"' --apply
+```

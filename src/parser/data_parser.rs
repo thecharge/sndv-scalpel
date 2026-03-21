@@ -149,6 +149,7 @@ fn symbol(
         start_byte,
         end_byte,
         signature: signature.to_string(),
+        parent: None,
     }
 }
 
