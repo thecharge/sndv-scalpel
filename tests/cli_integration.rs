@@ -289,6 +289,7 @@ fn go_import_group_block_swap_from_file() {
     let strings_pos = updated.find("\"strings\"").expect("strings import");
     let fmt_pos = updated.find("\"fmt\"").expect("fmt import");
     assert!(strings_pos < fmt_pos);
+    assert!(updated.contains("func Run(value string) string"));
 }
 
 #[test]
@@ -343,4 +344,29 @@ fn patch_json_outputs_structured_payload() {
         "--apply",
     ]);
     cmd.assert().success().stdout(contains("\"applied\": true")).stdout(contains("\"changed\""));
+}
+
+#[test]
+fn patch_supports_direct_line_swap() {
+    let temp = tempfile::tempdir().expect("tempdir");
+    let path = temp.path().join("sample.txt");
+    std::fs::write(&path, "alpha\nbeta\ngamma\n").expect("write fixture");
+
+    let mut cmd = Command::cargo_bin("scalpel").expect("binary");
+    cmd.args([
+        "patch",
+        "*",
+        path.to_string_lossy().as_ref(),
+        "--from-line",
+        "2",
+        "--to-line",
+        "2",
+        "--body",
+        "BETA\n",
+        "--apply",
+    ]);
+    cmd.assert().success();
+
+    let updated = std::fs::read_to_string(path).expect("read updated text");
+    assert_eq!(updated, "alpha\nBETA\ngamma\n");
 }

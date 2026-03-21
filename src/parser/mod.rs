@@ -29,13 +29,7 @@ pub async fn parse_path(
     let symbols = parse_symbols(&language, path.to_path_buf(), &content)?;
     let mode = strategy_mode(&language.strategy, &language.id);
 
-    Ok(ParsedFile {
-        language_id: language.id,
-        mode,
-        tier: language.tier,
-        content,
-        symbols,
-    })
+    Ok(ParsedFile { language_id: language.id, mode, tier: language.tier, content, symbols })
 }
 
 pub fn parse_symbols(

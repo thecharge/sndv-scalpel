@@ -5,6 +5,7 @@ use similar::TextDiff;
 
 use crate::config::AppConfig;
 use crate::lang::LanguageRegistry;
+use crate::model::{Symbol, SymbolKind};
 use crate::parser::parse_path;
 use crate::query::Query;
 use crate::transaction::Transaction;
@@ -19,15 +20,19 @@ pub async fn run(
     registry: &LanguageRegistry,
     request: PatchRequest<'_>,
 ) -> anyhow::Result<()> {
-    let query = Query::parse(request.pattern)?;
     let parsed = parse_path(request.path, cfg, registry).await?;
-    let matches: Vec<_> =
-        parsed.symbols.into_iter().filter(|s| query.matches(s.kind, &s.name)).collect();
+    let selected = if let Some(from_line) = request.from_line {
+        line_range_symbol(request.path, &parsed.content, from_line, request.to_line)?
+    } else {
+        let query = Query::parse(request.pattern)?;
+        let matches: Vec<_> =
+            parsed.symbols.into_iter().filter(|s| query.matches(s.kind, &s.name)).collect();
+        select_symbol(request.pattern, request.path, &matches, request.index)?.clone()
+    };
 
-    let selected = select_symbol(request.pattern, request.path, &matches, request.index)?;
     let changed = build_changed_content(
         &parsed.content,
-        selected,
+        &selected,
         request.rename,
         request.replace,
         request.body,
@@ -83,6 +88,8 @@ pub struct PatchRequest<'a> {
     pub body_file: Option<&'a Path>,
     pub apply: bool,
     pub index: Option<usize>,
+    pub from_line: Option<usize>,
+    pub to_line: Option<usize>,
     pub json: bool,
 }
 
@@ -150,4 +157,67 @@ async fn apply_transactional_patch(path: &Path, changed: &str) -> anyhow::Result
     tx.rollback().await?;
     tx.cleanup().await?;
     write_result
+}
+
+fn line_range_symbol(
+    path: &Path,
+    content: &str,
+    from_line: usize,
+    to_line: Option<usize>,
+) -> anyhow::Result<Symbol> {
+    if from_line == 0 {
+        anyhow::bail!("--from-line must be >= 1");
+    }
+
+    let lines: Vec<&str> = content.lines().collect();
+    if lines.is_empty() {
+        anyhow::bail!("file is empty");
+    }
+
+    let max_line = lines.len();
+    let start_line = from_line.min(max_line);
+    let end_line = to_line.unwrap_or(from_line).max(start_line).min(max_line);
+    let start_byte = line_start_byte(content, start_line);
+    let end_byte = line_end_byte(content, end_line);
+
+    Ok(Symbol {
+        file: path.to_path_buf(),
+        kind: SymbolKind::Unknown,
+        name: format!("line-range:{start_line}-{end_line}"),
+        start_line,
+        end_line,
+        start_byte,
+        end_byte,
+        signature: String::new(),
+        parent: None,
+    })
+}
+
+fn line_start_byte(content: &str, line_number: usize) -> usize {
+    if line_number <= 1 {
+        return 0;
+    }
+
+    let mut current_line = 1usize;
+    for (idx, ch) in content.char_indices() {
+        if ch == '\n' {
+            current_line += 1;
+            if current_line == line_number {
+                return idx + 1;
+            }
+        }
+    }
+
+    content.len()
+}
+
+fn line_end_byte(content: &str, line_number: usize) -> usize {
+    let start = line_start_byte(content, line_number);
+    let Some(rest) = content.get(start..) else {
+        return content.len();
+    };
+    let Some(offset) = rest.find('\n') else {
+        return content.len();
+    };
+    start + offset + 1
 }

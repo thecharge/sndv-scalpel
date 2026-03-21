@@ -154,6 +154,30 @@ scalpel --json diff 'fn:CalculateTotal' tests/fixtures/sample.go --rename sum=to
 scalpel --json patch 'fn:CalculateTotal' tests/fixtures/sample.go --rename sum=total --apply
 ```
 
+## E2E scenario: direct line-range swap
+
+```bash
+cp tests/fixtures/sample.txt /tmp/scalpel-lines.txt
+scalpel patch '*' /tmp/scalpel-lines.txt --from-line 2 --to-line 2 --body $'status: running\n' --apply
+```
+
+Expected:
+
+- line window replacement applies exactly to selected range
+- diff preview is still emitted before apply confirmation
+
+## E2E scenario: Podman local suite with usage guide generation
+
+```bash
+./scripts/podman-e2e.sh
+```
+
+Expected:
+
+- binary is built locally
+- CLI suite runs in a Podman container against fixture copies
+- `docs/usage-guide.md` is regenerated with real command output
+
 Expected:
 
 - paginated output returns stable line windows

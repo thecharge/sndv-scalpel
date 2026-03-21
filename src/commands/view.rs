@@ -12,47 +12,58 @@ use super::util::{kind_label, select_symbol};
 
 const VIEW_LINE_CAP: usize = 200;
 
+pub struct ViewRequest<'a> {
+    pub pattern_or_path: &'a str,
+    pub path: Option<&'a Path>,
+    pub context: usize,
+    pub index: Option<usize>,
+    pub outline: bool,
+    pub lines: Option<&'a str>,
+    pub all: bool,
+    pub json: bool,
+}
+
 pub async fn run(
     cfg: &AppConfig,
     registry: &LanguageRegistry,
-    pattern_or_path: &str,
-    path: Option<&Path>,
-    context: usize,
-    index: Option<usize>,
-    outline: bool,
-    lines: Option<&str>,
-    all: bool,
-    json: bool,
+    request: ViewRequest<'_>,
 ) -> anyhow::Result<()> {
-    if outline {
-        return run_outline(cfg, registry, resolve_view_path(pattern_or_path, path)?, json).await;
-    }
-
-    if let Some(range) = lines {
-        return run_lines(
+    if request.outline {
+        return run_outline(
             cfg,
             registry,
-            resolve_view_path(pattern_or_path, path)?,
-            range,
-            all,
-            json,
+            resolve_view_path(request.pattern_or_path, request.path)?,
+            request.json,
         )
         .await;
     }
 
-    let target_path = path.ok_or_else(|| anyhow::anyhow!("view requires <pattern> <path>"))?;
-    let query = Query::parse(pattern_or_path)?;
+    if let Some(range) = request.lines {
+        return run_lines(
+            cfg,
+            registry,
+            resolve_view_path(request.pattern_or_path, request.path)?,
+            range,
+            request.all,
+            request.json,
+        )
+        .await;
+    }
+
+    let target_path =
+        request.path.ok_or_else(|| anyhow::anyhow!("view requires <pattern> <path>"))?;
+    let query = Query::parse(request.pattern_or_path)?;
     let parsed = parse_path(target_path, cfg, registry).await?;
     let matches: Vec<_> =
         parsed.symbols.into_iter().filter(|s| query.matches(s.kind, &s.name)).collect();
 
-    let selected = select_symbol(pattern_or_path, target_path, &matches, index)?;
+    let selected = select_symbol(request.pattern_or_path, target_path, &matches, request.index)?;
     let file_lines: Vec<&str> = parsed.content.lines().collect();
 
-    let start = selected.start_line.saturating_sub(context + 1);
-    let end = (selected.end_line + context).min(file_lines.len());
+    let start = selected.start_line.saturating_sub(request.context + 1);
+    let end = (selected.end_line + request.context).min(file_lines.len());
 
-    if json {
+    if request.json {
         let mut rendered = Vec::new();
         for (idx, line) in file_lines[start..end].iter().enumerate() {
             rendered.push(ViewLine { number: start + idx + 1, text: (*line).to_string() });
@@ -62,7 +73,7 @@ pub async fn run(
             language: parsed.language_id,
             mode: parsed.mode,
             tier: parsed.tier,
-            pattern: pattern_or_path.to_string(),
+            pattern: request.pattern_or_path.to_string(),
             symbol: selected.clone(),
             lines: rendered,
         };
@@ -169,7 +180,10 @@ async fn run_lines(
     Ok(())
 }
 
-fn resolve_view_path<'a>(pattern_or_path: &'a str, path: Option<&'a Path>) -> anyhow::Result<&'a Path> {
+fn resolve_view_path<'a>(
+    pattern_or_path: &'a str,
+    path: Option<&'a Path>,
+) -> anyhow::Result<&'a Path> {
     if let Some(value) = path {
         return Ok(value);
     }
@@ -272,7 +286,13 @@ impl OutlineNode {
 
 fn print_outline_node(node: &OutlineNode, depth: usize) {
     let indent = "  ".repeat(depth);
-    println!("{indent}- {} {}:{}-{}", kind_label(node.kind), node.name, node.start_line, node.end_line);
+    println!(
+        "{indent}- {} {}:{}-{}",
+        kind_label(node.kind),
+        node.name,
+        node.start_line,
+        node.end_line
+    );
     for child in &node.children {
         print_outline_node(child, depth + 1);
     }

@@ -88,6 +88,10 @@ pub enum Command {
         body_file: Option<PathBuf>,
         #[arg(long)]
         index: Option<usize>,
+        #[arg(long, help = "Start line for direct line-range edits")]
+        from_line: Option<usize>,
+        #[arg(long, help = "End line for direct line-range edits (defaults to --from-line)")]
+        to_line: Option<usize>,
     },
     #[command(
         about = "Apply patch transactionally (requires --apply)",
@@ -109,6 +113,10 @@ pub enum Command {
         apply: bool,
         #[arg(long)]
         index: Option<usize>,
+        #[arg(long, help = "Start line for direct line-range edits")]
+        from_line: Option<usize>,
+        #[arg(long, help = "End line for direct line-range edits (defaults to --from-line)")]
+        to_line: Option<usize>,
     },
     #[command(about = "Generate shell completion script")]
     Completion {

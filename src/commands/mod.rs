@@ -11,6 +11,7 @@ mod util;
 mod view;
 
 use patch::PatchRequest;
+use view::ViewRequest;
 
 pub async fn dispatch(
     cfg: &AppConfig,
@@ -27,14 +28,16 @@ pub async fn dispatch(
             view::run(
                 cfg,
                 registry,
-                pattern_or_path,
-                path.as_deref(),
-                *context,
-                *index,
-                *outline,
-                lines.as_deref(),
-                *all,
-                json,
+                ViewRequest {
+                    pattern_or_path,
+                    path: path.as_deref(),
+                    context: *context,
+                    index: *index,
+                    outline: *outline,
+                    lines: lines.as_deref(),
+                    all: *all,
+                    json,
+                },
             )
             .await
         }
@@ -42,7 +45,17 @@ pub async fn dispatch(
             peek::run(path.as_path(), *from_line, *to_line, *page_size, *page, *all, json)
         }
         Command::Info { path } => info::run(cfg, registry, path.as_path(), json).await,
-        Command::Diff { pattern, path, rename, replace, body, body_file, index } => {
+        Command::Diff {
+            pattern,
+            path,
+            rename,
+            replace,
+            body,
+            body_file,
+            index,
+            from_line,
+            to_line,
+        } => {
             patch::run(
                 cfg,
                 registry,
@@ -55,12 +68,25 @@ pub async fn dispatch(
                     body_file: body_file.as_deref(),
                     apply: false,
                     index: *index,
+                    from_line: *from_line,
+                    to_line: *to_line,
                     json,
                 },
             )
             .await
         }
-        Command::Patch { pattern, path, rename, replace, body, body_file, apply, index } => {
+        Command::Patch {
+            pattern,
+            path,
+            rename,
+            replace,
+            body,
+            body_file,
+            apply,
+            index,
+            from_line,
+            to_line,
+        } => {
             patch::run(
                 cfg,
                 registry,
@@ -73,6 +99,8 @@ pub async fn dispatch(
                     body_file: body_file.as_deref(),
                     apply: *apply,
                     index: *index,
+                    from_line: *from_line,
+                    to_line: *to_line,
                     json,
                 },
             )

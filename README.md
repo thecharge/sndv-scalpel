@@ -249,6 +249,11 @@ Complex TypeScript fixture for advanced examples:
 
 - `tests/fixtures/sample-complex.ts`
 
+Containerized CLI suite and usage guide generation:
+
+- `./scripts/podman-e2e.sh` builds the binary, runs CLI scenarios in Podman, and regenerates `docs/usage-guide.md` with real output.
+- `./scripts/generate-usage-guide.sh` can be run directly when a local binary already exists.
+
 ## Collaboration and Governance
 
 - Contribution workflow: CONTRIBUTING.md

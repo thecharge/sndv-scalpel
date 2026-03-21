@@ -40,12 +40,12 @@ fn capture_pattern(
         let mut end_byte = line_end_byte(content, start_byte);
 
         if pattern.block_scoped {
-            if let Some(block_end) = find_block_end(content, start_byte) {
-                end_byte = block_end;
-            } else if is_import_group(m.as_str()) {
+            if is_import_group(m.as_str()) {
                 if let Some(group_end) = find_group_end(content, start_byte) {
                     end_byte = group_end;
                 }
+            } else if let Some(block_end) = find_block_end(content, start_byte) {
+                end_byte = block_end;
             }
         }
 

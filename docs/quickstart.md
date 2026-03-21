@@ -87,3 +87,15 @@ source ~/.bashrc
 ./target/release/scalpel --json diff 'fn:CalculateTotal' tests/fixtures/sample.go --rename sum=total
 ./target/release/scalpel --json patch 'fn:CalculateTotal' tests/fixtures/sample.go --rename sum=total --apply
 ```
+
+## 14. Direct line-range swap
+
+```bash
+./target/release/scalpel patch '*' tests/fixtures/sample.txt --from-line 2 --to-line 2 --body $'status: running\n' --apply
+```
+
+## 15. Containerized CLI suite and auto-generated usage guide
+
+```bash
+./scripts/podman-e2e.sh
+```
