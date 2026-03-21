@@ -1,11 +1,11 @@
-#!/usr/bin/env bash
-set -euo pipefail
+#!/bin/sh
+set -eu
 
-ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+ROOT_DIR="$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)"
 BIN_PATH="${1:-$ROOT_DIR/target/release/scalpel}"
 OUT_PATH="${2:-$ROOT_DIR/docs/usage-guide.md}"
 
-if [[ ! -x "$BIN_PATH" ]]; then
+if [ ! -x "$BIN_PATH" ]; then
   echo "binary not found or not executable: $BIN_PATH"
   exit 2
 fi
@@ -45,29 +45,29 @@ sanitize_output() {
 }
 
 run_case() {
-  local title="$1"
-  local file_links="$2"
-  local display_cmd="$3"
-  local exec_cmd="$4"
-  local expected="$5"
+  title="$1"
+  file_links="$2"
+  display_cmd="$3"
+  exec_cmd="$4"
+  expected="$5"
 
   case_index=$((case_index + 1))
 
-  local output
-  local status
+  output=""
+  status=0
   set +e
   output="$(eval "$exec_cmd" 2>&1)"
   status=$?
   set -e
 
-  if [[ $status -ne 0 ]]; then
+  if [ "$status" -ne 0 ]; then
     echo "case failed: $title"
     echo "$output"
     exit $status
   fi
 
-  if [[ -n "$expected" ]]; then
-    if ! grep -Fq "$expected" <<<"$output"; then
+  if [ -n "$expected" ]; then
+    if ! printf "%s\n" "$output" | grep -Fq "$expected"; then
       echo "case assertion failed: $title"
       echo "expected substring: $expected"
       echo "$output"
@@ -79,10 +79,10 @@ run_case() {
     echo "## $case_index. $title"
     echo
     echo "Example files:"
-    while IFS= read -r file_link; do
-      [[ -z "$file_link" ]] && continue
+    printf "%s\n" "$file_links" | while IFS= read -r file_link; do
+      [ -z "$file_link" ] && continue
       echo "- [$file_link](../$file_link)"
-    done <<<"$file_links"
+    done
     echo
     echo "Command:"
     echo
@@ -153,8 +153,8 @@ run_case \
 run_case \
   "Swap direct line range" \
   "tests/fixtures/sample.txt" \
-  "scalpel patch '*' tests/fixtures/sample.txt --from-line 2 --to-line 2 --body $'status: running\\n' --apply" \
-  "\"$BIN_PATH\" patch '*' \"$WORK_DIR/sample.txt\" --from-line 2 --to-line 2 --body $'status: running\\n' --apply" \
+  "scalpel patch '*' tests/fixtures/sample.txt --from-line 2 --to-line 2 --body \"\$(printf 'status: running\\n')\" --apply" \
+  "\"$BIN_PATH\" patch '*' \"$WORK_DIR/sample.txt\" --from-line 2 --to-line 2 --body \"\$(printf 'status: running\\n')\" --apply" \
   "applied:"
 
 run_case \

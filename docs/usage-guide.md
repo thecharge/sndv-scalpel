@@ -18,17 +18,17 @@ scalpel find 'fn:*' tests/fixtures --recursive
 Actual output:
 
 ```text
-/tmp/scalpel-work/fixtures/sample-complex.ts:73-76 [typescript:1:structural] function formatSummary
 /tmp/scalpel-work/fixtures/sample.lua:2-12 [lua:1:structural] function calculate_total
 /tmp/scalpel-work/fixtures/sample.lua:10-12 [lua:1:structural] function M.run
+/tmp/scalpel-work/fixtures/sample-complex.ts:73-76 [typescript:1:structural] function formatSummary
 /tmp/scalpel-work/fixtures/sample.rs:4-11 [rust:1:structural] function calculate_total
 /tmp/scalpel-work/fixtures/sample.rs:14-14 [rust:1:structural] function run
-/tmp/scalpel-work/fixtures/sample.js:2-9 [javascript:1:structural] function calculateTotal
 /tmp/scalpel-work/fixtures/big/large-service.go:4-1508 [go:1:structural] function CalculateTotal
+/tmp/scalpel-work/fixtures/sample.js:2-9 [javascript:1:structural] function calculateTotal
 /tmp/scalpel-work/fixtures/sample.ts:4-7 [typescript:1:structural] function buildReport
 /tmp/scalpel-work/fixtures/big/large-service.rs:4-1507 [rust:1:structural] function process_order
-/tmp/scalpel-work/fixtures/sample.go:6-13 [go:1:structural] function CalculateTotal
 /tmp/scalpel-work/fixtures/sample-import-groups.go:7-11 [go:1:structural] function Run
+/tmp/scalpel-work/fixtures/sample.go:6-13 [go:1:structural] function CalculateTotal
 ```
 
 ## 2. View matched function with context
@@ -181,7 +181,7 @@ Example files:
 Command:
 
 ```bash
-scalpel patch '*' tests/fixtures/sample.txt --from-line 2 --to-line 2 --body $'status: running\n' --apply
+scalpel patch '*' tests/fixtures/sample.txt --from-line 2 --to-line 2 --body "$(printf 'status: running\n')" --apply
 ```
 
 Actual output:
@@ -189,11 +189,11 @@ Actual output:
 ```text
 --- a//tmp/scalpel-work/sample.txt
 +++ b//tmp/scalpel-work/sample.txt
-@@ -1,3 +1,3 @@
+@@ -1,3 +1,2 @@
  title: Scalpel Notes
 -status: queued
-+status: running
- owner: team-a
+-owner: team-a
++status: runningowner: team-a
 applied: /tmp/scalpel-work/sample.txt
 ```
 

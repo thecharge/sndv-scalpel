@@ -1,13 +1,18 @@
-FROM docker.io/library/debian:bookworm-slim
+FROM docker.io/library/rust:1.90-alpine3.22 AS builder
 
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends \
-        bash \
-        coreutils \
-        grep \
-        sed \
-        ca-certificates \
-    && rm -rf /var/lib/apt/lists/*
+WORKDIR /build
+
+COPY Cargo.toml Cargo.lock ./
+COPY src ./src
+COPY config ./config
+
+RUN cargo build --release --locked --bin scalpel
+
+FROM docker.io/library/alpine:3.22
+
+RUN apk add --no-cache ca-certificates
+
+COPY --from=builder /build/target/release/scalpel /usr/local/bin/scalpel
 
 WORKDIR /workspace
-ENTRYPOINT ["/bin/bash"]
+ENTRYPOINT ["/bin/sh"]
