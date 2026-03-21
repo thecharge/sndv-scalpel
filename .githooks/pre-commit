@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+repo_root="$(git rev-parse --show-toplevel)"
+cd "$repo_root"
+
+echo "[pre-commit] cargo fmt --check"
+cargo fmt --all -- --check
+
+echo "[pre-commit] cargo clippy"
+cargo clippy --all-targets --all-features -- -D warnings
+
+echo "[pre-commit] cargo test"
+cargo test --all-targets
+
+echo "[pre-commit] all checks passed"

@@ -1,0 +1,6 @@
+[service]
+name = "scalpel"
+mode = "safe"
+
+[limits]
+max_file_bytes = 33554432

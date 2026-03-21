@@ -1,0 +1,20 @@
+pub const DEFAULT_CONFIG_PATH: &str = "config/scalpel.yaml";
+pub const DEFAULT_HOME_CONFIG_RELATIVE: &str = ".config/scalpel/scalpel.yaml";
+pub const DEFAULT_XDG_CONFIG_RELATIVE: &str = "scalpel/scalpel.yaml";
+pub const CONFIG_ENV_KEY: &str = "SCALPEL_CONFIG";
+pub const DRY_RUN_MESSAGE: &str = "dry-run only. pass --apply to write changes.";
+pub const APPLIED_MESSAGE: &str = "applied:";
+pub const NO_MATCHES_MESSAGE: &str = "no matches";
+pub const DEFAULT_CONCURRENCY: usize = 8;
+pub const DEFAULT_MAX_FILE_BYTES: u64 = 32 * 1024 * 1024;
+
+pub const PREFIX_FN: &str = "fn";
+pub const PREFIX_METHOD: &str = "method";
+pub const PREFIX_CLASS: &str = "class";
+pub const PREFIX_TYPE: &str = "type";
+pub const PREFIX_TRAIT: &str = "trait";
+pub const PREFIX_ENUM: &str = "enum";
+pub const PREFIX_STRUCT: &str = "struct";
+pub const PREFIX_IMPORT: &str = "import";
+pub const PREFIX_HEADING: &str = "heading";
+pub const PREFIX_KEY: &str = "key";
