@@ -1,4 +1,5 @@
 use clap::{Parser, Subcommand};
+use clap_complete::Shell;
 use std::path::PathBuf;
 
 #[derive(Debug, Parser)]
@@ -44,6 +45,23 @@ pub enum Command {
         #[arg(long)]
         index: Option<usize>,
     },
+    #[command(
+        about = "Peek file content with pagination or explicit ranges",
+        after_long_help = "Examples:\n  scalpel peek src/main.rs\n  scalpel peek src/main.rs --from-line 120 --page-size 40 --page 2\n  scalpel peek src/main.rs --from-pos 300 --to-pos 360 --all"
+    )]
+    Peek {
+        path: PathBuf,
+        #[arg(long = "from-line", visible_alias = "from-pos", default_value_t = 1)]
+        from_line: usize,
+        #[arg(long = "to-line", visible_alias = "to-pos")]
+        to_line: Option<usize>,
+        #[arg(long, default_value_t = 50)]
+        page_size: usize,
+        #[arg(long, default_value_t = 1)]
+        page: usize,
+        #[arg(long, help = "Print all lines in the selected range")]
+        all: bool,
+    },
     #[command(about = "Show file language and symbol summary")]
     Info { path: PathBuf },
     #[command(
@@ -85,5 +103,10 @@ pub enum Command {
         apply: bool,
         #[arg(long)]
         index: Option<usize>,
+    },
+    #[command(about = "Generate shell completion script")]
+    Completion {
+        #[arg(value_enum, default_value_t = Shell::Bash)]
+        shell: Shell,
     },
 }
