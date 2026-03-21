@@ -174,7 +174,7 @@ Expected:
 
 Expected:
 
-- binary is built locally
+- binary is built in the image (multi-stage build)
 - CLI suite runs in a Podman container against fixture copies
 - `docs/usage-guide.md` is regenerated with real command output
 

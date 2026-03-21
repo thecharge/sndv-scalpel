@@ -2,6 +2,8 @@ FROM docker.io/library/rust:1.90-alpine3.22 AS builder
 
 WORKDIR /build
 
+RUN apk add --no-cache build-base musl-dev
+
 COPY Cargo.toml Cargo.lock ./
 COPY src ./src
 COPY config ./config

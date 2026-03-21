@@ -251,7 +251,7 @@ Complex TypeScript fixture for advanced examples:
 
 Containerized CLI suite and usage guide generation:
 
-- `./scripts/podman-e2e.sh` builds the binary, runs CLI scenarios in Podman, and regenerates `docs/usage-guide.md` with real output.
+- `./scripts/podman-e2e.sh` builds the binary inside a multi-stage container image, runs CLI scenarios in Podman, and regenerates `docs/usage-guide.md` with real output.
 - `./scripts/generate-usage-guide.sh` can be run directly when a local binary already exists.
 
 ## Collaboration and Governance
