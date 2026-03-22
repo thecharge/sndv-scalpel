@@ -18,17 +18,17 @@ scalpel find 'fn:*' tests/fixtures --recursive
 Actual output:
 
 ```text
-/tmp/scalpel-work/fixtures/sample-complex.ts:73-76 [typescript:1:structural] function formatSummary
 /tmp/scalpel-work/fixtures/sample.lua:2-12 [lua:1:structural] function calculate_total
 /tmp/scalpel-work/fixtures/sample.lua:10-12 [lua:1:structural] function M.run
+/tmp/scalpel-work/fixtures/sample-complex.ts:73-76 [typescript:1:structural] function formatSummary
 /tmp/scalpel-work/fixtures/sample.rs:4-11 [rust:1:structural] function calculate_total
 /tmp/scalpel-work/fixtures/sample.rs:14-14 [rust:1:structural] function run
 /tmp/scalpel-work/fixtures/sample.js:2-9 [javascript:1:structural] function calculateTotal
 /tmp/scalpel-work/fixtures/big/large-service.go:4-1508 [go:1:structural] function CalculateTotal
 /tmp/scalpel-work/fixtures/sample.ts:4-7 [typescript:1:structural] function buildReport
 /tmp/scalpel-work/fixtures/big/large-service.rs:4-1507 [rust:1:structural] function process_order
-/tmp/scalpel-work/fixtures/sample-import-groups.go:7-11 [go:1:structural] function Run
 /tmp/scalpel-work/fixtures/sample.go:6-13 [go:1:structural] function CalculateTotal
+/tmp/scalpel-work/fixtures/sample-import-groups.go:7-11 [go:1:structural] function Run
 ```
 
 ## 2. View matched function with context
@@ -406,7 +406,65 @@ Actual output:
 }
 ```
 
-## 13. Peek paginated content
+## 13. Use explicit config path
+
+Example files:
+- [config/scalpel.yaml](../config/scalpel.yaml)
+- [tests/fixtures/sample.json](../tests/fixtures/sample.json)
+
+Command:
+
+```bash
+scalpel --config config/scalpel.yaml find 'key:*' tests/fixtures/sample.json
+```
+
+Actual output:
+
+```text
+/tmp/scalpel-work/sample.json:1-1 [json:1:structural] key limits
+/tmp/scalpel-work/sample.json:1-1 [json:1:structural] key limits.max_file_bytes
+/tmp/scalpel-work/sample.json:1-1 [json:1:structural] key service
+/tmp/scalpel-work/sample.json:1-1 [json:1:structural] key service.mode
+/tmp/scalpel-work/sample.json:1-1 [json:1:structural] key service.name
+```
+
+## 14. Add new filetype to existing language
+
+Example files:
+- [config/scalpel.yaml](../config/scalpel.yaml)
+
+Command:
+
+```bash
+scalpel --config /tmp/scalpel-with-log.yaml find 'key:*' /tmp/custom.log
+```
+
+Actual output:
+
+```text
+/tmp/scalpel-work/custom.log:1-1 [text:1:text] key status
+/tmp/scalpel-work/custom.log:2-2 [text:1:text] key owner
+```
+
+## 15. Add a new language in config
+
+Example files:
+- [config/scalpel.yaml](../config/scalpel.yaml)
+
+Command:
+
+```bash
+scalpel --config /tmp/scalpel-custom.yaml find 'key:*' /tmp/settings.ini
+```
+
+Actual output:
+
+```text
+/tmp/scalpel-work/settings.ini:1-1 [ini:1:structural] key mode
+/tmp/scalpel-work/settings.ini:2-2 [ini:1:structural] key owner
+```
+
+## 16. Peek paginated content
 
 Example files:
 - [tests/fixtures/sample.go](../tests/fixtures/sample.go)
@@ -429,7 +487,7 @@ Actual output:
 next page: --page 2
 ```
 
-## 14. Generate bash completion script
+## 17. Generate bash completion script
 
 Example files:
 - [README.md](../README.md)

@@ -21,20 +21,44 @@ cp "$WORK_DIR/fixtures/sample.json" "$WORK_DIR/sample.json"
 cp "$WORK_DIR/fixtures/sample.md" "$WORK_DIR/sample.md"
 cp "$WORK_DIR/fixtures/sample-import-groups.go" "$WORK_DIR/sample-import-groups.go"
 cp "$WORK_DIR/fixtures/sample.txt" "$WORK_DIR/sample.txt"
+cp "$ROOT_DIR/config/scalpel.yaml" "$WORK_DIR/scalpel-custom.yaml"
 
-cat > "$WORK_DIR/new-total.go" << 'EOF'
+cat > "$WORK_DIR/custom.log" << 'TXT'
+status: queued
+owner: ops
+TXT
+
+cat > "$WORK_DIR/settings.ini" << 'TXT'
+mode=strict
+owner=platform
+TXT
+
+sed 's/extensions: \[txt\]/extensions: [txt, log]/' "$WORK_DIR/scalpel-custom.yaml" > "$WORK_DIR/scalpel-with-log.yaml"
+
+cat >> "$WORK_DIR/scalpel-custom.yaml" << 'YAML'
+  - id: ini
+    extensions: [ini]
+    strategy: regex
+    tier: 1
+    patterns:
+      - kind: key
+        regex: '(?m)^\s*([A-Za-z_][A-Za-z0-9_\-]*)\s*=\s*.*$'
+        capture_group: 1
+YAML
+
+cat > "$WORK_DIR/new-total.go" << 'GO'
 func CalculateTotal(items []int) int {
     total := 100
     return total
 }
-EOF
+GO
 
-cat > "$WORK_DIR/new-imports.go.frag" << 'EOF'
+cat > "$WORK_DIR/new-imports.go.frag" << 'GO'
 import (
     "strings"
     "fmt"
 )
-EOF
+GO
 
 case_index=0
 
@@ -53,8 +77,6 @@ run_case() {
 
   case_index=$((case_index + 1))
 
-  output=""
-  status=0
   set +e
   output="$(eval "$exec_cmd" 2>&1)"
   status=$?
@@ -63,7 +85,7 @@ run_case() {
   if [ "$status" -ne 0 ]; then
     echo "case failed: $title"
     echo "$output"
-    exit $status
+    exit "$status"
   fi
 
   if [ -n "$expected" ]; then
@@ -99,11 +121,11 @@ run_case() {
   } >> "$OUT_PATH"
 }
 
-cat > "$OUT_PATH" << 'EOF'
+cat > "$OUT_PATH" << 'DOC'
 # Usage Guide
 
 This guide is auto-generated from a shell test suite run against real CLI commands.
-EOF
+DOC
 
 run_case \
   "Find across fixture languages" \
@@ -191,6 +213,28 @@ run_case \
   "scalpel --json diff 'fn:CalculateTotal' tests/fixtures/sample.go --rename sum=total" \
   "\"$BIN_PATH\" --json diff 'fn:CalculateTotal' \"$WORK_DIR/sample.go\" --rename sum=total" \
   "\"dry_run\": true"
+
+run_case \
+  "Use explicit config path" \
+  "config/scalpel.yaml
+tests/fixtures/sample.json" \
+  "scalpel --config config/scalpel.yaml find 'key:*' tests/fixtures/sample.json" \
+  "\"$BIN_PATH\" --config \"$ROOT_DIR/config/scalpel.yaml\" find 'key:*' \"$WORK_DIR/sample.json\"" \
+  "service.mode"
+
+run_case \
+  "Add new filetype to existing language" \
+  "config/scalpel.yaml" \
+  "scalpel --config /tmp/scalpel-with-log.yaml find 'key:*' /tmp/custom.log" \
+  "\"$BIN_PATH\" --config \"$WORK_DIR/scalpel-with-log.yaml\" find 'key:*' \"$WORK_DIR/custom.log\"" \
+  "status"
+
+run_case \
+  "Add a new language in config" \
+  "config/scalpel.yaml" \
+  "scalpel --config /tmp/scalpel-custom.yaml find 'key:*' /tmp/settings.ini" \
+  "\"$BIN_PATH\" --config \"$WORK_DIR/scalpel-custom.yaml\" find 'key:*' \"$WORK_DIR/settings.ini\"" \
+  "mode"
 
 run_case \
   "Peek paginated content" \
