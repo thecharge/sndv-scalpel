@@ -2,9 +2,9 @@
 
 Production-ready structural-aware CLI for safe code discovery and scoped edits.
 
-Creator lineage: Radoslav Sandov (Go prototype). Current Rust CLI version: `0.1.0`.
+Creator: Radoslav Sandov. CLI version: `0.1.0`.
 
-This repository migrates the prototype CLI from Go to Rust and hardens it for real usage with:
+This repository provides a production-ready CLI with:
 
 - async concurrent file processing
 - buffered stream I/O
@@ -16,7 +16,7 @@ This repository migrates the prototype CLI from Go to Rust and hardens it for re
 
 ## Status
 
-- Migration baseline: complete
+- Release status: stable
 - Language coverage (config-driven): JavaScript, TypeScript, Go, Rust, Lua, Markdown, Text, YAML, JSON, JSONL, TOML
 - Safety defaults: enabled (`diff` is dry-run, `patch` requires `--apply`)
 
