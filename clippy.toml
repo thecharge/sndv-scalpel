@@ -1,1 +1,5 @@
 too-many-arguments-threshold = 8
+cognitive-complexity-threshold = 25
+single-char-binding-names-threshold = 0
+type-complexity-threshold = 500
+excessive-nesting-threshold = 5

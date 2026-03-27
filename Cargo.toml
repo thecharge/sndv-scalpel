@@ -37,3 +37,13 @@ lto = true
 codegen-units = 1
 panic = "abort"
 strip = true
+
+[clippy]
+warn = [
+    "cognitive_complexity",
+    "cyclomatic_complexity",
+    "too_many_lines",
+    "missing_docs",
+    "single_char_lifetime_params_in_generics",
+    "many_single_char_names",
+]
