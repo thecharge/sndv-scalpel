@@ -8,6 +8,23 @@ Binary name: `scalpel`. Crate name: `sndv-scalpel`. Creator: Radoslav Sandov.
 
 ---
 
+## Installing / verifying scalpel
+
+```bash
+# check if installed
+command -v scalpel && scalpel --version
+
+# install if missing (Linux/macOS — detects OS, falls back to cargo)
+curl -fsSL https://raw.githubusercontent.com/thecharge/sndv-scalpel/main/scripts/ensure-scalpel.sh | bash
+
+# add to PATH after install
+export PATH="$HOME/.local/bin:$PATH"
+```
+
+See `scripts/ensure-scalpel.sh` for the full install logic. See `docs/llm-usage.md` for Windows and source-build paths.
+
+---
+
 ## Required check before finishing any change
 
 ```bash

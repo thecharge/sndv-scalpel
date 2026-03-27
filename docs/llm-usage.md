@@ -4,6 +4,71 @@
 
 This project is designed to be LLM-friendly by exposing deterministic, parseable command outputs and safety-first write semantics.
 
+## Prerequisites and installation
+
+Before invoking any scalpel command, verify the binary is available:
+
+```bash
+command -v scalpel && scalpel --version
+```
+
+If the check fails, use one of the install paths below based on OS.
+
+### Linux / macOS — automated one-liner (recommended for agents)
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/thecharge/sndv-scalpel/main/scripts/ensure-scalpel.sh | bash
+```
+
+`ensure-scalpel.sh` handles everything: OS detection, binary download, source build fallback, PATH output. Safe to run in any pipeline — exits 0 immediately if already installed.
+
+Required tools for binary install path:
+
+| OS | Command |
+|----|---------|
+| Debian / Ubuntu | `sudo apt-get install -y curl tar` |
+| Fedora / RHEL | `sudo dnf install -y curl tar` |
+| Alpine | `apk add curl tar` |
+| macOS | ships with OS |
+
+If no prebuilt binary exists for the platform, the script falls back to building from source. That requires the Rust toolchain:
+
+```bash
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+source "$HOME/.cargo/env"
+```
+
+### Linux / macOS — binary only
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/thecharge/sndv-scalpel/main/scripts/install-from-github.sh | bash
+```
+
+### Windows — PowerShell
+
+```powershell
+iwr https://raw.githubusercontent.com/thecharge/sndv-scalpel/main/scripts/install-from-github.ps1 -OutFile install-scalpel.ps1
+powershell -ExecutionPolicy Bypass -File .\install-scalpel.ps1
+```
+
+### From source (any OS with Rust)
+
+```bash
+cargo install --git https://github.com/thecharge/sndv-scalpel --bin scalpel
+```
+
+### Add to PATH and enable completion
+
+```bash
+export PATH="$HOME/.local/bin:$PATH"    # add to ~/.bashrc or ~/.zshrc for persistence
+source ~/.bashrc                         # reload
+
+scalpel completion bash >> ~/.bashrc    # optional tab completion
+scalpel --version                       # verify
+```
+
+---
+
 ## Exit codes
 
 | Code | Meaning |

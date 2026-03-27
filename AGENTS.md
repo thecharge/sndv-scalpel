@@ -4,6 +4,79 @@ Shared operating guide for coding agents working in this repository, and for AI 
 
 ---
 
+## Installing scalpel
+
+Before using any scalpel command, verify it is present:
+
+```bash
+command -v scalpel && scalpel --version
+```
+
+If that fails, install using one of the paths below.
+
+### Linux / macOS — automated (recommended)
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/thecharge/sndv-scalpel/main/scripts/ensure-scalpel.sh | bash
+```
+
+`ensure-scalpel.sh` detects the OS and architecture, downloads the correct prebuilt binary, falls back to `cargo install` if no binary exists, and prints the PATH setup commands. Safe to run repeatedly — exits immediately if already installed.
+
+**Prereqs for the binary path:** `curl` and `tar`.
+
+| OS | Install prereqs |
+|----|----------------|
+| Debian / Ubuntu | `sudo apt-get install -y curl tar` |
+| Fedora / RHEL | `sudo dnf install -y curl tar` |
+| Alpine | `apk add curl tar` |
+| macOS | ships with the OS |
+
+**Prereqs for the source build fallback:** Rust toolchain.
+
+```bash
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+source "$HOME/.cargo/env"
+```
+
+### Linux / macOS — direct binary one-liner
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/thecharge/sndv-scalpel/main/scripts/install-from-github.sh | bash
+```
+
+### Windows — PowerShell
+
+```powershell
+iwr https://raw.githubusercontent.com/thecharge/sndv-scalpel/main/scripts/install-from-github.ps1 -OutFile install-scalpel.ps1
+powershell -ExecutionPolicy Bypass -File .\install-scalpel.ps1
+```
+
+### From source (any OS with Rust)
+
+```bash
+cargo install --git https://github.com/thecharge/sndv-scalpel --bin scalpel
+```
+
+### After installing
+
+```bash
+# add to PATH — add to ~/.bashrc or ~/.zshrc for persistence
+export PATH="$HOME/.local/bin:$PATH"
+
+# reload
+source ~/.bashrc   # or: source ~/.zshrc
+
+# enable tab completion (optional)
+scalpel completion bash >> ~/.bashrc
+scalpel completion zsh  >> ~/.zshrc
+
+# verify
+scalpel --version
+scalpel --help
+```
+
+---
+
 ## Using scalpel as a tool
 
 ### Recommended workflow

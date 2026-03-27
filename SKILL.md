@@ -7,6 +7,85 @@ description: Use scalpel when you need structural-aware multi-language symbol di
 
 Use this CLI when tasks require editing by symbol identity instead of fragile line numbers.
 
+## Step 0 — ensure scalpel is installed
+
+Before invoking any scalpel command, verify the tool is present. Run this check first:
+
+```bash
+command -v scalpel && scalpel --version
+```
+
+If that fails (exit code non-zero or command not found), install scalpel for the current OS.
+
+### Linux / macOS — one-liner binary install
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/thecharge/sndv-scalpel/main/scripts/install-from-github.sh | bash
+```
+
+Prereqs for the one-liner: `curl` and `tar`.
+
+| OS | Install curl + tar |
+|----|-------------------|
+| Debian / Ubuntu | `sudo apt-get install -y curl tar` |
+| Fedora / RHEL | `sudo dnf install -y curl tar` |
+| Alpine | `apk add curl tar` |
+| macOS | ships with the OS; or `brew install curl` |
+
+### Windows — PowerShell
+
+```powershell
+iwr https://raw.githubusercontent.com/thecharge/sndv-scalpel/main/scripts/install-from-github.ps1 -OutFile install-scalpel.ps1
+powershell -ExecutionPolicy Bypass -File .\install-scalpel.ps1
+```
+
+### Fallback — build from source (any OS with Rust)
+
+```bash
+# 1. install Rust if not present
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+source "$HOME/.cargo/env"
+
+# 2. build and install
+cargo install --git https://github.com/thecharge/sndv-scalpel --bin scalpel
+```
+
+### Or use the automated ensure script (check + install + PATH in one step)
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/thecharge/sndv-scalpel/main/scripts/ensure-scalpel.sh | bash
+```
+
+The `ensure-scalpel.sh` script:
+- exits 0 immediately if scalpel is already on PATH
+- detects OS and architecture
+- attempts a binary release download first
+- falls back to `cargo install` if no binary exists for the platform
+- prints exact PATH export instructions after installing
+
+### After installing — add to PATH and enable completion
+
+```bash
+# add to PATH (add this line to ~/.bashrc or ~/.zshrc for persistence)
+export PATH="$HOME/.local/bin:$PATH"
+
+# reload shell profile
+source ~/.bashrc   # or: source ~/.zshrc
+
+# optional: enable tab completion
+scalpel completion bash >> ~/.bashrc
+scalpel completion zsh  >> ~/.zshrc
+```
+
+### Verify
+
+```bash
+scalpel --version
+scalpel --help
+```
+
+---
+
 ## Best-fit scenarios
 
 - Rename identifiers within a matched function or block.
