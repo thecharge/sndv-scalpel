@@ -2,7 +2,6 @@ use std::path::{Path, PathBuf};
 
 use regex::Regex;
 
-use crate::config::AppConfig;
 use crate::constants::{APPLIED_MESSAGE, DRY_RUN_MESSAGE};
 use crate::error::ScalpelError;
 use crate::lang::LanguageRegistry;
@@ -174,8 +173,6 @@ pub fn dry_run_message() -> &'static str {
 pub fn applied_message() -> &'static str {
     APPLIED_MESSAGE
 }
-
-pub fn _unused_cfg(_cfg: &AppConfig) {}
 
 #[cfg(test)]
 mod tests {

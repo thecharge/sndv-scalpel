@@ -4,6 +4,16 @@
 
 This project is designed to be LLM-friendly by exposing deterministic, parseable command outputs and safety-first write semantics.
 
+## Exit codes
+
+| Code | Meaning |
+|------|---------|
+| `0` | Success |
+| `1` | No matches — valid query, zero results |
+| `2` | Error — bad input, file missing, ambiguous match, write failure |
+
+Exit code `1` is not an error. It means the pattern matched nothing. Agents must distinguish `1` (empty result) from `2` (hard failure) in control flow.
+
 ## Safety-first contract
 
 - Prefer `find` to locate symbols before proposing edits.

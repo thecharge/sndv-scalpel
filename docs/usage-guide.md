@@ -18,13 +18,13 @@ scalpel find 'fn:*' tests/fixtures --recursive
 Actual output:
 
 ```text
-/tmp/scalpel-work/fixtures/sample-complex.ts:73-76 [typescript:1:structural] function formatSummary
 /tmp/scalpel-work/fixtures/sample.lua:2-12 [lua:1:structural] function calculate_total
 /tmp/scalpel-work/fixtures/sample.lua:10-12 [lua:1:structural] function M.run
+/tmp/scalpel-work/fixtures/sample-complex.ts:73-76 [typescript:1:structural] function formatSummary
 /tmp/scalpel-work/fixtures/sample.rs:4-11 [rust:1:structural] function calculate_total
 /tmp/scalpel-work/fixtures/sample.rs:14-14 [rust:1:structural] function run
-/tmp/scalpel-work/fixtures/big/large-service.go:4-1508 [go:1:structural] function CalculateTotal
 /tmp/scalpel-work/fixtures/sample.js:2-9 [javascript:1:structural] function calculateTotal
+/tmp/scalpel-work/fixtures/big/large-service.go:4-1508 [go:1:structural] function CalculateTotal
 /tmp/scalpel-work/fixtures/sample.ts:4-7 [typescript:1:structural] function buildReport
 /tmp/scalpel-work/fixtures/big/large-service.rs:4-1507 [rust:1:structural] function process_order
 /tmp/scalpel-work/fixtures/sample-import-groups.go:7-11 [go:1:structural] function Run

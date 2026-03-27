@@ -10,6 +10,9 @@ pub enum ScalpelError {
     #[error("no matches found for pattern '{pattern}' in {path}")]
     NoMatch { pattern: String, path: PathBuf },
 
+    #[error("no matches found for pattern '{pattern}'")]
+    NoMatchFound { pattern: String },
+
     #[error("ambiguous pattern '{pattern}' in {path}: matched {count} symbols; use --index")]
     Ambiguous { pattern: String, path: PathBuf, count: usize },
 

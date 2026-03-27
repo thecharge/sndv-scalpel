@@ -3,7 +3,7 @@ use std::path::PathBuf;
 use futures::{stream, StreamExt};
 
 use crate::config::AppConfig;
-use crate::constants::NO_MATCHES_MESSAGE;
+use crate::error::ScalpelError;
 use crate::lang::LanguageRegistry;
 use crate::model::{Confidence, MatchOutput};
 use crate::parser::parse_path;
@@ -54,6 +54,14 @@ pub async fn run(
         }
     }
 
+    if out.is_empty() {
+        return Err(ScalpelError::NoMatchFound { pattern: pattern.to_string() }.into());
+    }
+
+    out.sort_by(|a, b| {
+        a.symbol.file.cmp(&b.symbol.file).then(a.symbol.start_line.cmp(&b.symbol.start_line))
+    });
+
     if json {
         println!("{}", serde_json::to_string_pretty(&out)?);
     } else {
@@ -70,10 +78,6 @@ pub async fn run(
                 item.symbol.name
             );
         }
-    }
-
-    if out.is_empty() {
-        anyhow::bail!(NO_MATCHES_MESSAGE);
     }
 
     Ok(())
