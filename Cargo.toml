@@ -24,7 +24,7 @@ similar = { version = "2.6", features = ["unicode"] }
 thiserror = "2.0"
 tokio = { version = "1.44", features = ["macros", "rt-multi-thread", "fs", "io-util"] }
 tokio-util = { version = "0.7", features = ["codec"] }
-toml = "1.0"
+toml = "1.1"
 walkdir = "2.5"
 
 [dev-dependencies]
